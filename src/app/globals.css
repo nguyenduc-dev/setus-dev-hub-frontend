@@ -24,3 +24,87 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Tech Glitch Style for Seto Studio */
+.tech-glitch-container {
+  position: relative;
+  padding: 40px 0;
+  margin-top: 40px;
+  border-top: 1px border-zinc-800/30;
+  display: flex;
+  justify-content: center;
+}
+
+.tech-glitch {
+  font-size: 4rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  position: relative;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(168, 85, 247, 0.3);
+  letter-spacing: 0.2em;
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+.tech-glitch::before,
+.tech-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tech-glitch::before {
+  color: #a855f7;
+  -webkit-text-stroke: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  transform: translate(-3px, -2px);
+  opacity: 0.8;
+}
+
+.tech-glitch::after {
+  color: #7c3aed;
+  -webkit-text-stroke: 0;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+  transform: translate(3px, 2px);
+  opacity: 0.8;
+}
+
+@keyframes tech-glitch-1 {
+  0% { clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%); transform: translate(-3px, -2px); }
+  25% { clip-path: polygon(0 10%, 100% 10%, 100% 40%, 0 40%); transform: translate(2px, 1px); }
+  50% { clip-path: polygon(0 5%, 100% 5%, 100% 30%, 0 30%); transform: translate(-1px, 2px); }
+  75% { clip-path: polygon(0 15%, 100% 15%, 100% 50%, 0 50%); transform: translate(3px, -1px); }
+  100% { clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%); transform: translate(-3px, -2px); }
+}
+
+@keyframes tech-glitch-2 {
+  0% { clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%); transform: translate(3px, 2px); }
+  25% { clip-path: polygon(0 60%, 100% 60%, 100% 90%, 0 90%); transform: translate(-2px, -1px); }
+  50% { clip-path: polygon(0 70%, 100% 70%, 100% 95%, 0 95%); transform: translate(1px, -2px); }
+  75% { clip-path: polygon(0 65%, 100% 65%, 100% 85%, 0 85%); transform: translate(-3px, 1px); }
+  100% { clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%); transform: translate(3px, 2px); }
+}
+
+.tech-glitch-bars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tech-glitch-bar {
+  position: absolute;
+  height: 1px;
+  background: #a855f7;
+  width: 100%;
+  opacity: 0.5;
+}
+
+@keyframes tech-bar-anim {
+  0% { top: 0; opacity: 0; }
+  5% { opacity: 0.5; }
+  10% { opacity: 0; }
+  100% { top: 100%; opacity: 0; }
+}
