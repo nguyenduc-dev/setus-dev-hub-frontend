@@ -16,13 +16,24 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const getSocketURL = () => {
+      const envUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL;
+      
       if (typeof window !== 'undefined') {
         const { hostname, protocol } = window.location;
-        if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+        
+        if (envUrl && !envUrl.includes('localhost') && hostname === 'localhost') {
+            // Dev
+        } else if (envUrl) {
+            // Strip /api if it's from NEXT_PUBLIC_API_URL
+            return envUrl.replace(/\/api$/, '');
+        }
+
+        const isIP = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname);
+        if (isIP && hostname !== '127.0.0.1') {
           return `${protocol}//${hostname}:4000`;
         }
       }
-      return process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000';
+      return envUrl ? envUrl.replace(/\/api$/, '') : 'http://localhost:4000';
     };
 
     const socketInstance = io(getSocketURL(), {
