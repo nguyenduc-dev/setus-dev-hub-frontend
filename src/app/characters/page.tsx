@@ -19,6 +19,7 @@ interface Character {
   passiveSkill: string | null;
   activeSkill: string | null;
   specialSkill: string | null;
+  winCondition: string | null;
   imageUrl: string | null;
 }
 
@@ -27,7 +28,7 @@ export default function CharactersPage() {
   const [isAdding, setIsAdding] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
-    name: '', type: 'Demon' as Faction, hp: 100, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', imageUrl: ''
+    name: '', type: 'Demon' as Faction, hp: 100, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', winCondition: '', imageUrl: ''
   });
 
   const getImageUrl = (url: string | null) => {
@@ -51,7 +52,7 @@ export default function CharactersPage() {
       const previous = queryClient.getQueryData(['characters']);
       queryClient.setQueryData(['characters'], (old: any) => [{...newChar, id: 'temp-'+Date.now()}].concat(old || []));
       setIsAdding(false);
-      setFormData({ name: '', type: 'Demon', hp: 100, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', imageUrl: '' });
+      setFormData({ name: '', type: 'Demon', hp: 100, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', winCondition: '', imageUrl: '' });
       toast.success('Character added');
       return { previous };
     },
@@ -75,7 +76,7 @@ export default function CharactersPage() {
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
   const [deletingCharId, setDeletingCharId] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState({
-    name: '', type: 'Demon' as Faction, hp: 0, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', imageUrl: ''
+    name: '', type: 'Demon' as Faction, hp: 0, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', winCondition: '', imageUrl: ''
   });
 
   const updateMutation = useMutation({
@@ -97,6 +98,7 @@ export default function CharactersPage() {
       passiveSkill: char.passiveSkill || '',
       activeSkill: char.activeSkill || '',
       specialSkill: char.specialSkill || '',
+      winCondition: char.winCondition || '',
       imageUrl: char.imageUrl || ''
     });
   };
@@ -230,6 +232,12 @@ export default function CharactersPage() {
                 <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Special Skill (Bind)</label>
                 <input value={formData.specialSkill} onChange={e=>setFormData({...formData, specialSkill: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" placeholder="Constraint / Special..." />
               </div>
+              {formData.type === 'Anomaly' && (
+                <div className="animate-in slide-in-from-top-2 duration-300">
+                  <label className="block text-xs uppercase tracking-wider text-amber-500 font-bold mb-1.5">Winning Condition (Anomaly Only) *</label>
+                  <textarea rows={3} value={formData.winCondition} onChange={e=>setFormData({...formData, winCondition: e.target.value})} className="w-full bg-amber-500/5 border border-amber-500/30 rounded-lg px-4 py-2.5 text-sm text-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all placeholder:text-amber-900/50" placeholder="Describe how this anomaly wins the game..." />
+                </div>
+              )}
             </div>
 
             {/* Right Col - Image Drop & Submit */}
@@ -403,6 +411,17 @@ export default function CharactersPage() {
                       {selectedCharacter.specialSkill || "No special constraints documented."}
                     </p>
                   </div>
+
+                  {selectedCharacter.type === 'Anomaly' && selectedCharacter.winCondition && (
+                    <div className="group animate-in slide-in-from-top-4 duration-500">
+                      <h4 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                         <Star className="w-3 h-3 fill-amber-500" /> Winning Condition
+                      </h4>
+                      <p className="text-amber-100 leading-relaxed bg-amber-500/10 p-5 rounded-2xl border border-amber-500/30 group-hover:bg-amber-500/20 transition-all font-bold italic shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+                        "{selectedCharacter.winCondition}"
+                      </p>
+                    </div>
+                  )}
                </div>
             </div>
 
@@ -486,6 +505,12 @@ export default function CharactersPage() {
                     <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Special Skill</label>
                     <input value={editFormData.specialSkill} onChange={e=>setEditFormData({...editFormData, specialSkill: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" />
                   </div>
+                  {editFormData.type === 'Anomaly' && (
+                    <div className="animate-in slide-in-from-top-2 duration-300">
+                      <label className="block text-xs uppercase tracking-wider text-amber-500 font-bold mb-1.5">Winning Condition</label>
+                      <textarea rows={2} value={editFormData.winCondition} onChange={e=>setEditFormData({...editFormData, winCondition: e.target.value})} className="w-full bg-amber-500/5 border border-amber-500/30 rounded-lg px-4 py-2 text-sm text-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all placeholder:text-amber-900/50" placeholder="Describe win condition..." />
+                    </div>
+                  )}
                   <div 
                     onClick={() => fileInputRef.current?.click()}
                     className="flex-1 min-h-[100px] border-2 border-dashed border-zinc-800 hover:border-indigo-500/50 bg-zinc-950/30 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors group relative overflow-hidden"
