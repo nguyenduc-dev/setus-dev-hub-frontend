@@ -281,12 +281,12 @@ export default function CharactersPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative min-h-[400px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative min-h-[400px] items-start">
         {isLoading ? (
           <>
             <Loader fullScreen={false} className="absolute inset-0 z-50 bg-zinc-950/20" />
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="aspect-[4/5] rounded-[2rem] bg-zinc-900/50 border border-zinc-800 animate-pulse" />
+              <div key={i} className="aspect-[3/4] rounded-2xl bg-zinc-900/50 border border-zinc-800 animate-pulse" />
             ))}
           </>
         ) : characters?.filter(c => (filterFaction === 'All' || c.type === filterFaction) && c.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
@@ -345,8 +345,8 @@ export default function CharactersPage() {
                 </div>
               </div>
               <div className="p-5">
-                <div className="flex justify-between items-center mb-1">
-                  <h3 className="font-bold text-white text-lg truncate pr-2">{char.name}</h3>
+                <div className="flex justify-between items-center mb-1 min-w-0">
+                  <h3 className="font-bold text-white text-lg truncate pr-2 flex-1">{char.name}</h3>
                   <div className="flex items-center gap-2">
                      <span className="text-[10px] font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">HP {char.hp}</span>
                      <span className={cn(
@@ -371,7 +371,7 @@ export default function CharactersPage() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedCharacter(null)} />
           
-          <div className="relative w-full max-w-4xl bg-zinc-950 border border-zinc-800 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row animate-in zoom-in-95 slide-in-from-bottom-8 duration-500">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-zinc-950 border border-zinc-800 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row animate-in zoom-in-95 slide-in-from-bottom-8 duration-500 scrollbar-hidden">
             <button 
               onClick={() => setSelectedCharacter(null)}
               className="absolute top-6 right-6 z-50 p-3 bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white rounded-2xl transition-all"
@@ -479,7 +479,7 @@ export default function CharactersPage() {
       {editingCharacter && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setEditingCharacter(null)} />
-          <div className="relative w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-300 scrollbar-hidden">
             <h2 className="text-xl font-bold text-white mb-6">Edit Character: {editingCharacter.name}</h2>
             <form 
               onSubmit={(e) => {

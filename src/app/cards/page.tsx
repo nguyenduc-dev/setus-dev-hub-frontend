@@ -221,12 +221,12 @@ export default function CardsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative min-h-[400px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative min-h-[400px] items-start">
         {isLoading ? (
           <>
             <Loader fullScreen={false} className="absolute inset-0 z-50 bg-zinc-950/20" />
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="aspect-[2/3] rounded-3xl bg-zinc-900/50 border border-zinc-800 animate-pulse" />
+              <div key={i} className="aspect-[3/4] rounded-2xl bg-zinc-900/50 border border-zinc-800 animate-pulse" />
             ))}
           </>
         ) : cards?.filter(c => (filterType === 'All' || c.type === filterType) && c.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
@@ -281,8 +281,8 @@ export default function CardsPage() {
               </div>
 
               <div className="p-5">
-                <div className="flex justify-between items-center mb-1">
-                  <h3 className="font-bold text-white text-lg truncate pr-2">{card.name}</h3>
+                <div className="flex justify-between items-center mb-1 min-w-0">
+                  <h3 className="font-bold text-white text-lg truncate pr-2 flex-1">{card.name}</h3>
                   <span className={cn(
                     "text-[10px] uppercase tracking-wider font-extrabold px-2 py-1 rounded-md border text-white",
                     card.type === 'Equipment' ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
