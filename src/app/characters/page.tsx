@@ -20,6 +20,8 @@ interface Character {
   activeSkill: string | null;
   specialSkill: string | null;
   winCondition: string | null;
+  storyChar: string | null;
+  charDesc: string | null;
   imageUrl: string | null;
 }
 
@@ -28,7 +30,7 @@ export default function CharactersPage() {
   const [isAdding, setIsAdding] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
-    name: '', type: 'Demon' as Faction, hp: 100, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', winCondition: '', imageUrl: ''
+    name: '', type: 'Demon' as Faction, hp: 100, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', winCondition: '', storyChar: '', charDesc: '', imageUrl: ''
   });
 
   const getImageUrl = (url: string | null) => {
@@ -52,7 +54,7 @@ export default function CharactersPage() {
       const previous = queryClient.getQueryData(['characters']);
       queryClient.setQueryData(['characters'], (old: any) => [{...newChar, id: 'temp-'+Date.now()}].concat(old || []));
       setIsAdding(false);
-      setFormData({ name: '', type: 'Demon', hp: 100, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', winCondition: '', imageUrl: '' });
+      setFormData({ name: '', type: 'Demon', hp: 100, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', winCondition: '', storyChar: '', charDesc: '', imageUrl: '' });
       toast.success('Character added');
       return { previous };
     },
@@ -76,7 +78,7 @@ export default function CharactersPage() {
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
   const [deletingCharId, setDeletingCharId] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState({
-    name: '', type: 'Demon' as Faction, hp: 0, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', winCondition: '', imageUrl: ''
+    name: '', type: 'Demon' as Faction, hp: 0, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', winCondition: '', storyChar: '', charDesc: '', imageUrl: ''
   });
 
   const updateMutation = useMutation({
@@ -99,6 +101,8 @@ export default function CharactersPage() {
       activeSkill: char.activeSkill || '',
       specialSkill: char.specialSkill || '',
       winCondition: char.winCondition || '',
+      storyChar: char.storyChar || '',
+      charDesc: char.charDesc || '',
       imageUrl: char.imageUrl || ''
     });
   };
@@ -238,6 +242,14 @@ export default function CharactersPage() {
                   <textarea rows={3} value={formData.winCondition} onChange={e=>setFormData({...formData, winCondition: e.target.value})} className="w-full bg-amber-500/5 border border-amber-500/30 rounded-lg px-4 py-2.5 text-sm text-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all placeholder:text-amber-900/50" placeholder="Describe how this anomaly wins the game..." />
                 </div>
               )}
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Character Story</label>
+                <textarea rows={2} value={formData.storyChar} onChange={e=>setFormData({...formData, storyChar: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-zinc-600" placeholder="A short backstory phrase..." />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Detailed Description</label>
+                <textarea rows={3} value={formData.charDesc} onChange={e=>setFormData({...formData, charDesc: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-zinc-600" placeholder="In-depth character details..." />
+              </div>
             </div>
 
             {/* Right Col - Image Drop & Submit */}
@@ -387,10 +399,22 @@ export default function CharactersPage() {
                       HP: {selectedCharacter.hp}
                     </span>
                  </div>
-                  <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">{selectedCharacter.name}</h2>
+                  <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">{selectedCharacter.name}</h2>
+                  {selectedCharacter.storyChar && (
+                    <p className="text-indigo-400 font-medium italic mt-2 text-lg">"{selectedCharacter.storyChar}"</p>
+                  )}
                </div>
 
                <div className="space-y-8">
+                  {selectedCharacter.charDesc && (
+                    <div className="group">
+                      <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Character Background</h4>
+                      <div className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap bg-zinc-900/30 p-4 rounded-xl border border-zinc-800/30">
+                        {selectedCharacter.charDesc}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="group">
                     <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Passive Ability</h4>
                     <p className="text-zinc-200 leading-relaxed bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800/50 group-hover:border-zinc-700/50 transition-colors">
@@ -511,6 +535,14 @@ export default function CharactersPage() {
                       <textarea rows={2} value={editFormData.winCondition} onChange={e=>setEditFormData({...editFormData, winCondition: e.target.value})} className="w-full bg-amber-500/5 border border-amber-500/30 rounded-lg px-4 py-2 text-sm text-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all placeholder:text-amber-900/50" placeholder="Describe win condition..." />
                     </div>
                   )}
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Story Phrase</label>
+                    <input value={editFormData.storyChar} onChange={e=>setEditFormData({...editFormData, storyChar: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Details</label>
+                    <textarea rows={2} value={editFormData.charDesc} onChange={e=>setEditFormData({...editFormData, charDesc: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all resize-none" />
+                  </div>
                   <div 
                     onClick={() => fileInputRef.current?.click()}
                     className="flex-1 min-h-[100px] border-2 border-dashed border-zinc-800 hover:border-indigo-500/50 bg-zinc-950/30 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors group relative overflow-hidden"
