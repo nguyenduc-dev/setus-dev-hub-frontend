@@ -29,11 +29,21 @@ export default function RegionsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Region>>({});
 
+  // Automatically update next orderNumber when regions change
+  useEffect(() => {
+    if (regions && regions.length > 0) {
+      const maxOrder = Math.max(...regions.map(r => r.orderNumber));
+      setNewRow(prev => ({ ...prev, orderNumber: maxOrder + 1 }));
+    } else {
+      setNewRow(prev => ({ ...prev, orderNumber: 1 }));
+    }
+  }, [regions]);
+
   const createMutation = useMutation({
     mutationFn: (newReg: Omit<Region, 'id'>) => api.post('/regions', newReg),
     onSuccess: () => {
       toast.success('Region added inline');
-      setNewRow({ orderNumber: (regions?.length || 0) + 2, nameAndDescription: '', effect: '' });
+      setNewRow(prev => ({ ...prev, nameAndDescription: '', effect: '' }));
       queryClient.invalidateQueries({ queryKey: ['regions'] });
     },
     onError: () => toast.error('Failed to create region. Ensure STT is unique.')
@@ -186,7 +196,7 @@ export default function RegionsPage() {
                 <td className="px-6 py-4 text-center align-top">
                   <input
                     type="number"
-                    value={regions ? (regions.length > 0 ? regions[regions.length - 1].orderNumber + 1 : 1) : newRow.orderNumber}
+                    value={newRow.orderNumber}
                     onChange={(e) => setNewRow({ ...newRow, orderNumber: parseInt(e.target.value) || 1 })}
                     className="w-12 text-center bg-zinc-900 border border-zinc-700 rounded py-1.5 text-sm text-white focus:outline-none focus:border-emerald-500"
                   />

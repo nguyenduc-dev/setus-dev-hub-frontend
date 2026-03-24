@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Layers, Users, Zap, Map, LayoutDashboard, Image as ImageIcon, Trello, Video, MessageSquare } from 'lucide-react';
+import { Layers, Users, Zap, Map, LayoutDashboard, Image as ImageIcon, Trello, Video, MessageSquare, Swords, ShieldQuestion } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/characters', label: 'Characters', icon: Users },
   { href: '/cards', label: 'Cards', icon: Layers },
+  { href: '/miniboss', label: 'Mini Boss', icon: Swords },
+  { href: '/special-equipment', label: 'Special Equipment', icon: ShieldQuestion },
   { href: '/mechanics', label: 'Mechanics', icon: Zap },
   { href: '/regions', label: 'Regions', icon: Map },
   { href: '/kanban', label: 'Kanban', icon: Trello },

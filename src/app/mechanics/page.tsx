@@ -7,7 +7,7 @@ import Loader from '@/components/Loader';
 import { toast } from 'sonner';
 import { useState, useRef, useEffect } from 'react';
 
-type Category = 'Matchmaking' | 'Gameplay';
+type Category = 'Matchmaking' | 'Gameplay' | 'CardPool';
 
 interface Mechanic {
   id: string;
@@ -91,15 +91,15 @@ export default function MechanicsPage() {
         </div>
         
         <div className="flex bg-zinc-900/50 p-1 rounded-lg border border-zinc-800/50 w-full md:w-auto">
-          {(['Matchmaking', 'Gameplay'] as Category[]).map(cat => (
+          {(['Matchmaking', 'Gameplay', 'CardPool'] as Category[]).map(cat => (
             <button
               key={cat}
               onClick={() => { setActiveCategory(cat); setLocalRules([]); }}
-              className={`flex-1 md:w-32 py-1.5 text-sm font-medium rounded-md transition-all ${
-                activeCategory === cat ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'
+              className={`flex-1 md:w-32 py-1.5 text-xs font-bold uppercase tracking-widest rounded-md transition-all ${
+                activeCategory === cat ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              {cat}
+              {cat === 'CardPool' ? 'Card Pool' : cat}
             </button>
           ))}
         </div>
