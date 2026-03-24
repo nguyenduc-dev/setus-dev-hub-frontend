@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Plus, Image as ImageIcon, Trash2, Pencil, AlertTriangle, Search } from 'lucide-react';
+import { Plus, Image as ImageIcon, Trash2, Pencil, AlertTriangle, Search, Star } from 'lucide-react';
 import Loader from '@/components/Loader';
 import { toast } from 'sonner';
 import { useState, useRef } from 'react';
@@ -15,6 +15,7 @@ interface Character {
   name: string;
   type: Faction;
   hp: number;
+  level: string;
   passiveSkill: string | null;
   activeSkill: string | null;
   specialSkill: string | null;
@@ -26,7 +27,7 @@ export default function CharactersPage() {
   const [isAdding, setIsAdding] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
-    name: '', type: 'Demon' as Faction, hp: 100, passiveSkill: '', activeSkill: '', specialSkill: '', imageUrl: ''
+    name: '', type: 'Demon' as Faction, hp: 100, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', imageUrl: ''
   });
 
   const getImageUrl = (url: string | null) => {
@@ -50,7 +51,7 @@ export default function CharactersPage() {
       const previous = queryClient.getQueryData(['characters']);
       queryClient.setQueryData(['characters'], (old: any) => [{...newChar, id: 'temp-'+Date.now()}].concat(old || []));
       setIsAdding(false);
-      setFormData({ name: '', type: 'Demon', hp: 100, passiveSkill: '', activeSkill: '', specialSkill: '', imageUrl: '' });
+      setFormData({ name: '', type: 'Demon', hp: 100, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', imageUrl: '' });
       toast.success('Character added');
       return { previous };
     },
@@ -74,7 +75,7 @@ export default function CharactersPage() {
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
   const [deletingCharId, setDeletingCharId] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState({
-    name: '', type: 'Demon' as Faction, hp: 0, passiveSkill: '', activeSkill: '', specialSkill: '', imageUrl: ''
+    name: '', type: 'Demon' as Faction, hp: 0, level: '1', passiveSkill: '', activeSkill: '', specialSkill: '', imageUrl: ''
   });
 
   const updateMutation = useMutation({
@@ -92,6 +93,7 @@ export default function CharactersPage() {
       name: char.name,
       type: char.type,
       hp: char.hp || 0,
+      level: char.level || '1',
       passiveSkill: char.passiveSkill || '',
       activeSkill: char.activeSkill || '',
       specialSkill: char.specialSkill || '',
@@ -104,7 +106,7 @@ export default function CharactersPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-full flex flex-col">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-full flex flex-col pb-10">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white mb-1">Characters Roster</h1>
@@ -198,11 +200,19 @@ export default function CharactersPage() {
                 <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Name *</label>
                 <input required value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-zinc-600" placeholder="E.g., Demon Lord" />
               </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Faction *</label>
-                <select value={formData.type} onChange={e=>setFormData({...formData, type: e.target.value as Faction})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all">
-                  {['Demon','Knight','Mutant','Anomaly'].map(f=><option key={f} value={f}>{f}</option>)}
-                </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Faction *</label>
+                  <select value={formData.type} onChange={e=>setFormData({...formData, type: e.target.value as Faction})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all">
+                    {['Demon','Knight','Mutant','Anomaly'].map(f=><option key={f} value={f}>{f}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Level *</label>
+                  <select value={formData.level} onChange={e=>setFormData({...formData, level: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all">
+                    {['1','2','3','4','?'].map(lv=><option key={lv} value={lv}>{lv}</option>)}
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">HP (Health Points) *</label>
@@ -284,24 +294,31 @@ export default function CharactersPage() {
                 ) : (
                   <ImageIcon className="w-12 h-12 text-zinc-800 group-hover:text-zinc-600 transition-colors" />
                 )}
+                
+                {/* Level Display Badge */}
                 <div className="absolute top-3 left-3 flex gap-2">
+                   <div className="bg-amber-500 text-black font-black text-[10px] px-2 py-1 rounded-lg border border-white/20 shadow-lg flex items-center gap-1">
+                      <Star className="w-2.5 h-2.5 fill-black" />
+                      LV {char.level}
+                   </div>
+                </div>
+
+                <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
                       openEdit(char);
                     }}
-                    className="p-2 bg-black/60 backdrop-blur-md text-amber-500 hover:bg-amber-500 hover:text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all border border-white/5"
+                    className="p-2 bg-black/60 backdrop-blur-md text-amber-500 hover:bg-amber-500 hover:text-white rounded-lg transition-all border border-white/5"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
-                </div>
-                <div className="absolute top-3 right-3 flex gap-2">
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
                       setDeletingCharId(char.id);
                     }}
-                    className="p-2 bg-black/60 backdrop-blur-md text-red-500 hover:bg-red-500 hover:text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all border border-white/5"
+                    className="p-2 bg-black/60 backdrop-blur-md text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-all border border-white/5"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -341,11 +358,11 @@ export default function CharactersPage() {
             >
               <Plus className="w-6 h-6 rotate-45" />
             </button>
-
+ 
             {/* Content Left */}
             <div className="flex-1 p-8 md:p-12 overflow-y-auto max-h-[60vh] md:max-h-full scrollbar-hidden">
                <div className="mb-8">
-                 <div className="flex items-center gap-3 mb-4">
+                 <div className="flex flex-wrap items-center gap-3 mb-4">
                     <span className={cn(
                         "inline-block text-xs uppercase tracking-[0.2em] font-black px-3 py-1 rounded-full border",
                         selectedCharacter.type === 'Demon' ? "bg-red-500/10 text-red-500 border-red-500/20" :
@@ -354,6 +371,9 @@ export default function CharactersPage() {
                         "bg-purple-500/10 text-purple-500 border-purple-500/20"
                       )}>
                         {selectedCharacter.type} FACTION
+                    </span>
+                    <span className="text-xl font-black text-amber-500 bg-amber-500/10 px-4 py-1 rounded-full border border-amber-500/20 flex items-center gap-2">
+                       <Star className="w-5 h-5 fill-amber-500" /> LV {selectedCharacter.level}
                     </span>
                     <span className="text-xl font-black text-red-500 bg-red-500/10 px-4 py-1 rounded-full border border-red-500/20">
                       HP: {selectedCharacter.hp}
@@ -430,21 +450,29 @@ export default function CharactersPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Name</label>
-                    <input required value={editFormData.name} onChange={e=>setEditFormData({...editFormData, name: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none" />
+                    <input required value={editFormData.name} onChange={e=>setEditFormData({...editFormData, name: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" />
                   </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Faction</label>
-                    <select value={editFormData.type} onChange={e=>setEditFormData({...editFormData, type: e.target.value as Faction})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none">
-                      {['Demon','Knight','Mutant','Anomaly'].map(f=><option key={f} value={f}>{f}</option>)}
-                    </select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Faction</label>
+                      <select value={editFormData.type} onChange={e=>setEditFormData({...editFormData, type: e.target.value as Faction})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all">
+                        {['Demon','Knight','Mutant','Anomaly'].map(f=><option key={f} value={f}>{f}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Level</label>
+                      <select value={editFormData.level} onChange={e=>setEditFormData({...editFormData, level: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all">
+                        {['1','2','3','4','?'].map(lv=><option key={lv} value={lv}>{lv}</option>)}
+                      </select>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">HP (Health Points)</label>
-                    <input type="number" required value={editFormData.hp} onChange={e=>setEditFormData({...editFormData, hp: parseInt(e.target.value) || 0})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none" />
+                    <input type="number" required value={editFormData.hp} onChange={e=>setEditFormData({...editFormData, hp: parseInt(e.target.value) || 0})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" />
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Passive Skill</label>
-                    <input value={editFormData.passiveSkill} onChange={e=>setEditFormData({...editFormData, passiveSkill: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none" />
+                    <input value={editFormData.passiveSkill} onChange={e=>setEditFormData({...editFormData, passiveSkill: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" />
                   </div>
                 </div>
 
@@ -452,11 +480,11 @@ export default function CharactersPage() {
                 <div className="space-y-4 flex flex-col">
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Active Skill</label>
-                    <input value={editFormData.activeSkill} onChange={e=>setEditFormData({...editFormData, activeSkill: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none" />
+                    <input value={editFormData.activeSkill} onChange={e=>setEditFormData({...editFormData, activeSkill: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" />
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-zinc-500 font-medium mb-1.5">Special Skill</label>
-                    <input value={editFormData.specialSkill} onChange={e=>setEditFormData({...editFormData, specialSkill: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none" />
+                    <input value={editFormData.specialSkill} onChange={e=>setEditFormData({...editFormData, specialSkill: e.target.value})} className="w-full bg-zinc-950/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" />
                   </div>
                   <div 
                     onClick={() => fileInputRef.current?.click()}
@@ -475,8 +503,8 @@ export default function CharactersPage() {
               </div>
               
               <div className="flex gap-3 justify-end pt-4 border-t border-zinc-800">
-                <button type="button" onClick={() => setEditingCharacter(null)} className="px-4 py-2 rounded-lg text-sm text-zinc-400 hover:text-white">Cancel</button>
-                <button type="submit" disabled={updateMutation.isPending} className="bg-amber-500 hover:bg-amber-600 text-zinc-950 px-6 py-2 rounded-lg text-sm font-bold disabled:opacity-50">
+                <button type="button" onClick={() => setEditingCharacter(null)} className="px-4 py-2 rounded-lg text-sm text-zinc-400 hover:text-white transition-colors">Cancel</button>
+                <button type="submit" disabled={updateMutation.isPending} className="bg-amber-500 hover:bg-amber-600 text-zinc-950 px-6 py-2 rounded-lg text-sm font-bold disabled:opacity-50 transition-all">
                   {updateMutation.isPending ? 'Updating...' : 'Update Changes'}
                 </button>
               </div>
