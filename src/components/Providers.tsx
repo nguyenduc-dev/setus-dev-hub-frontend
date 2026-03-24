@@ -3,7 +3,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Toaster } from 'sonner';
-import { CollaborationProvider } from '@/context/CollaborationContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { SocketProvider } from '@/context/SocketContext';
 
@@ -21,10 +20,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <SocketProvider>
         <AuthProvider>
-          <CollaborationProvider>
-            {children}
-            <Toaster position="bottom-right" richColors theme="dark" />
-          </CollaborationProvider>
+          {children}
+          <Toaster position="bottom-right" richColors theme="dark" />
         </AuthProvider>
       </SocketProvider>
     </QueryClientProvider>

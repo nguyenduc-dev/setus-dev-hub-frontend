@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
-import Sidebar from "@/components/Sidebar";
 import PasswordGate from "@/components/PasswordGate";
+import MainLayout from "@/components/MainLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   description: "Internal dev workspace for Shadow Hunters",
 };
 
+// No duplicate import needed here
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,15 +30,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex antialiased bg-zinc-950 text-zinc-50 selection:bg-indigo-500/30">
         <Providers>
           <PasswordGate>
-            <div className="flex h-screen w-full overflow-hidden">
-              <Sidebar />
-              <main className="flex-1 overflow-y-auto p-8">{children}</main>
-            </div>
+            <MainLayout>{children}</MainLayout>
           </PasswordGate>
         </Providers>
       </body>

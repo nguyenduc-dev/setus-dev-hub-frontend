@@ -1,11 +1,13 @@
-import { Users, Layers, Zap, Map } from 'lucide-react';
+import { Users, Layers, Zap, Map, Swords, ShieldQuestion } from 'lucide-react';
 import Link from 'next/link';
 
 const stats = [
   { name: 'Characters', href: '/characters', icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
   { name: 'Cards', href: '/cards', icon: Layers, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+  { name: 'Mini Bosses', href: '/miniboss', icon: Swords, color: 'text-red-500', bg: 'bg-red-500/10' },
+  { name: 'Special Equipment', href: '/special-equipment', icon: ShieldQuestion, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
   { name: 'Mechanics', href: '/mechanics', icon: Zap, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-  { name: 'Regions', href: '/regions', icon: Map, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  { name: 'Regions', href: '/regions', icon: Map, color: 'text-zinc-400', bg: 'bg-zinc-400/10' },
 ];
 
 export default function Dashboard() {
