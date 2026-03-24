@@ -2,7 +2,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Plus, Trash2, Save, ExternalLink } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, X, Map, Search, Zap, Layers, ChevronRight, Save } from 'lucide-react';
+import Loader from '@/components/Loader';
 import { toast } from 'sonner';
 import { useState, useRef, useEffect } from 'react';
 
@@ -121,9 +122,9 @@ export default function MechanicsPage() {
 
         {/* Editor Infinite Canvas */}
         <div className="flex-1 overflow-y-auto p-8 relative scroll-smooth bg-[#1e1e1e]">
-          <div className="max-w-3xl mx-auto min-h-full pb-32">
+          <div className="max-w-3xl mx-auto min-h-full pb-32 relative">
             {isLoading ? (
-              <p className="text-zinc-500 animate-pulse text-center pt-20">Loading rules document...</p>
+              <Loader fullScreen={false} className="absolute inset-0 z-50 bg-zinc-950/20" />
             ) : (
               <div className="space-y-4">
                 {localRules.length === 0 && (
@@ -139,7 +140,7 @@ export default function MechanicsPage() {
                     <div className="flex-1 relative">
                       <textarea
                         className="w-full bg-transparent text-zinc-300 text-[15px] leading-relaxed resize-none focus:outline-none focus:bg-white/5 transition-colors p-2 rounded block"
-                        rows={rule.split('\n').length}
+                        rows={rule.split('\n').length || 1}
                         value={rule}
                         onChange={(e) => handleUpdateRule(idx, e.target.value)}
                         placeholder="Type rule here..."

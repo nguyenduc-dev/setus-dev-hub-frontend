@@ -2,9 +2,10 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Plus, Trash2, MapPin } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, X, Map, Search, Loader2 } from 'lucide-react';
+import Loader from '@/components/Loader';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Region {
   id: string;
@@ -25,6 +26,8 @@ export default function RegionsPage() {
   });
 
   const [newRow, setNewRow] = useState({ orderNumber: 1, nameAndDescription: '', effect: '' });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<Region>>({});
 
   const createMutation = useMutation({
     mutationFn: (newReg: Omit<Region, 'id'>) => api.post('/regions', newReg),
@@ -44,6 +47,31 @@ export default function RegionsPage() {
     }
   });
 
+  const updateMutation = useMutation({
+    mutationFn: (data: Region) => api.patch(`/regions/${data.id}`, data),
+    onSuccess: () => {
+      toast.success('Region updated');
+      setEditingId(null);
+      queryClient.invalidateQueries({ queryKey: ['regions'] });
+    },
+    onError: () => toast.error('Failed to update region')
+  });
+
+  const handleEdit = (region: Region) => {
+    setEditingId(region.id);
+    setEditForm(region);
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setEditForm({});
+  };
+
+  const handleSave = () => {
+    if (!editForm.nameAndDescription) return toast.error('Name & Desc is required');
+    updateMutation.mutate(editForm as Region);
+  };
+
   const handleAddRow = () => {
     if (!newRow.nameAndDescription) return toast.error('Name & Desc is required');
     createMutation.mutate(newRow);
@@ -58,7 +86,8 @@ export default function RegionsPage() {
         </div>
       </div>
 
-      <div className="bg-[#1e1e1e] border border-zinc-800/60 rounded-xl overflow-hidden shadow-2xl flex-1 flex flex-col relative">
+      <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl overflow-hidden backdrop-blur-md relative min-h-[400px]">
+        {isLoading && <Loader fullScreen={false} className="absolute inset-0 z-50 bg-zinc-950/40" />}
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -70,32 +99,85 @@ export default function RegionsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/50">
-              {isLoading && (
-                <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-zinc-500 animate-pulse">Loading regions...</td>
-                </tr>
-              )}
               {regions?.map((region) => (
-                <tr key={region.id} className="group hover:bg-zinc-800/20 transition-colors">
-                  <td className="px-6 py-4 text-center">
-                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-zinc-800 text-zinc-300 font-mono text-sm">
-                      {region.orderNumber}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-zinc-200 whitespace-pre-wrap leading-relaxed">{region.nameAndDescription}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-emerald-400/90 whitespace-pre-wrap">{region.effect || '—'}</div>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <button
-                      onClick={() => deleteMutation.mutate(region.id)}
-                      className="p-2 text-zinc-600 hover:text-red-400 hover:bg-red-400/10 rounded transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </td>
+                <tr key={region.id} className={`group transition-colors ${editingId === region.id ? 'bg-amber-500/5' : 'hover:bg-zinc-800/20'}`}>
+                  {editingId === region.id ? (
+                    <>
+                      <td className="px-6 py-4 text-center align-top">
+                        <input
+                          type="number"
+                          value={editForm.orderNumber}
+                          onChange={(e) => setEditForm({ ...editForm, orderNumber: parseInt(e.target.value) || 0 })}
+                          className="w-12 text-center bg-zinc-900 border border-zinc-700 rounded py-1 text-sm text-white focus:outline-none focus:border-amber-500"
+                        />
+                      </td>
+                      <td className="px-6 py-4 align-top">
+                        <textarea
+                          rows={2}
+                          value={editForm.nameAndDescription}
+                          onChange={(e) => setEditForm({ ...editForm, nameAndDescription: e.target.value })}
+                          className="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-amber-500 resize-none"
+                        />
+                      </td>
+                      <td className="px-6 py-4 align-top">
+                        <textarea
+                          rows={2}
+                          value={editForm.effect || ''}
+                          onChange={(e) => setEditForm({ ...editForm, effect: e.target.value })}
+                          className="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-sm text-emerald-400 focus:outline-none focus:border-amber-500 resize-none"
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-center align-top">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={handleSave}
+                            disabled={updateMutation.isPending}
+                            className="p-1.5 bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30 rounded transition-colors"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={handleCancel}
+                            className="p-1.5 bg-zinc-800 text-zinc-400 hover:bg-zinc-700 rounded transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="px-6 py-4 text-center">
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-zinc-800 text-zinc-300 font-mono text-sm">
+                          {region.orderNumber}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-zinc-200 whitespace-pre-wrap leading-relaxed">{region.nameAndDescription}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-emerald-400/90 whitespace-pre-wrap">{region.effect || '—'}</div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => handleEdit(region)}
+                            title="Edit Region"
+                            className="p-2 text-zinc-400 hover:text-amber-500 hover:bg-amber-500/10 rounded transition-colors"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteMutation.mutate(region.id)}
+                            title="Delete Region"
+                            className="p-2 text-zinc-400 hover:text-red-400 hover:bg-red-400/10 rounded transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
               

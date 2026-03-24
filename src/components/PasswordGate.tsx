@@ -54,7 +54,10 @@ export default function PasswordGate({ children }: { children: React.ReactNode }
               isError ? "animate-shake bg-red-500/10 border-red-500/20" : "group-hover:scale-110"
             )}>
               {isSubmitting ? (
-                <div className="w-8 h-8 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+                <div className="relative w-8 h-8">
+                  <div className="absolute inset-0 border-4 border-indigo-500/10 border-t-indigo-500 rounded-full animate-spin" />
+                  <div className="absolute inset-0 border-4 border-transparent border-b-purple-500/30 rounded-full animate-spin [animation-duration:1.5s]" />
+                </div>
               ) : (
                 <Lock className={cn("w-10 h-10 transition-colors", isError ? "text-red-500" : "text-indigo-500")} />
               )}

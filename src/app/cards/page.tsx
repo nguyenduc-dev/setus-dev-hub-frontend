@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Plus, Layers, Trash2, Pencil, Image as ImageIcon, AlertTriangle, Search } from 'lucide-react';
+import Loader from '@/components/Loader';
 import { toast } from 'sonner';
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
@@ -220,12 +221,14 @@ export default function CardsPage() {
         </div>
       )}
 
-      {/* Grid List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative min-h-[400px]">
         {isLoading ? (
-          Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="aspect-[2/3] rounded-3xl bg-zinc-900/50 border border-zinc-800 animate-pulse" />
-          ))
+          <>
+            <Loader fullScreen={false} className="absolute inset-0 z-50 bg-zinc-950/20" />
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="aspect-[2/3] rounded-3xl bg-zinc-900/50 border border-zinc-800 animate-pulse" />
+            ))}
+          </>
         ) : cards?.filter(c => (filterType === 'All' || c.type === filterType) && c.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
           <div className="col-span-full py-20 text-center bg-zinc-900/20 rounded-[2rem] border border-dashed border-zinc-800">
             <Layers className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
