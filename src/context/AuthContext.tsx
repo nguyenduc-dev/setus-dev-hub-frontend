@@ -26,9 +26,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (stored) {
         try {
           const session = JSON.parse(stored);
-          const today = new Date().toISOString().split('T')[0];
           
-          if (session.authenticated && session.date === today) {
+          if (session.authenticated) {
             setIsAuthenticated(true);
             setUsername(session.username || 'Anonymous');
           } else {
@@ -46,8 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (password: string, username: string) => {
     if (password === APP_PASSWORD && username.trim()) {
-      const today = new Date().toISOString().split('T')[0];
-      const session = { authenticated: true, date: today, username: username.trim() };
+      const session = { authenticated: true, username: username.trim() };
       localStorage.setItem(AUTH_KEY, JSON.stringify(session));
       setIsAuthenticated(true);
       setUsername(username.trim());
