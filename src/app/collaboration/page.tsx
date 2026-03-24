@@ -199,14 +199,23 @@ function VideoCard({
     }
   }, [settings.volume]);
 
+    const hasVideo = peer.stream && peer.stream.getVideoTracks().length > 0;
+    const hasAudio = peer.stream && peer.stream.getAudioTracks().length > 0;
+
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-3xl relative overflow-hidden group shadow-2xl aspect-video">
-      {isVideoMuted ? (
+      {(isVideoMuted || !hasVideo) ? (
         <div className="absolute inset-0 z-10 bg-zinc-950 flex flex-col items-center justify-center">
             <div className="w-20 h-20 rounded-full bg-zinc-900 flex items-center justify-center mb-4">
-                <VideoOff className="w-8 h-8 text-zinc-700" />
+                {(!hasVideo && !hasAudio) ? (
+                   <div className="text-zinc-700 font-bold">SPEC</div>
+                ) : (
+                   <VideoOff className="w-8 h-8 text-zinc-700" />
+                )}
             </div>
-            <p className="text-sm font-medium text-zinc-500">Camera is off</p>
+            <p className="text-sm font-medium text-zinc-500">
+                {!hasVideo ? 'No camera detected' : 'Camera is off'}
+            </p>
         </div>
       ) : null}
       

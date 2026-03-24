@@ -161,21 +161,47 @@ export function CollaborationProvider({ children }: { children: React.ReactNode 
 
   const joinRoom = async () => {
     if (!socket) return;
+    
+    let stream: MediaStream | null = null;
+    let fallbackStatus = '';
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      });
-      localStreamRef.current = stream;
-      setStreams([{ id: 'local', stream, isLocal: true, name: `${username} (You)` }]);
-      setIsJoined(true);
-      
-      socket.emit('join_collaboration', { name: username || 'User' });
-      toast.success('Joined conference room');
-    } catch (err) {
-      console.error('Failed to get local stream', err);
-      toast.error('Could not access camera/microphone');
+      // 1. Try both Video and Audio
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    } catch (e1) {
+      console.warn('Failed to get both video and audio, trying fallback...', e1);
+      try {
+        // 2. Try ONLY Audio
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setIsVideoMuted(true);
+        fallbackStatus = ' (Audio Only)';
+      } catch (e2) {
+        console.warn('Failed to get audio, trying only video...', e2);
+        try {
+          // 3. Try ONLY Video
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          setIsAudioMuted(true);
+          fallbackStatus = ' (Video Only)';
+        } catch (e3) {
+          console.warn('All media access failed. Joining as spectator.', e3);
+          fallbackStatus = ' (Spectator)';
+          toast.info('Joining as spectator (no camera/mic detected)');
+        }
+      }
     }
+
+    localStreamRef.current = stream;
+    if (stream) {
+      setStreams([{ id: 'local', stream, isLocal: true, name: `${username} (You)${fallbackStatus}` }]);
+    } else {
+      // For spectator mode, we still add a "local" entry but with no stream object
+      // or we handle it in the UI
+      setStreams([{ id: 'local', stream: new MediaStream(), isLocal: true, name: `${username} (You)${fallbackStatus}` }]);
+    }
+
+    setIsJoined(true);
+    socket.emit('join_collaboration', { name: username || 'User' });
+    toast.success('Joined conference room' + fallbackStatus);
   };
 
   const leaveRoom = () => {
@@ -194,7 +220,12 @@ export function CollaborationProvider({ children }: { children: React.ReactNode 
 
   const toggleAudio = () => {
     if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach(track => {
+      const tracks = localStreamRef.current.getAudioTracks();
+      if (tracks.length === 0) {
+        toast.error('No microphone detected');
+        return;
+      }
+      tracks.forEach(track => {
         track.enabled = isAudioMuted;
       });
       setIsAudioMuted(!isAudioMuted);
@@ -203,7 +234,12 @@ export function CollaborationProvider({ children }: { children: React.ReactNode 
 
   const toggleVideo = () => {
     if (localStreamRef.current) {
-      localStreamRef.current.getVideoTracks().forEach(track => {
+      const tracks = localStreamRef.current.getVideoTracks();
+      if (tracks.length === 0) {
+        toast.error('No camera detected');
+        return;
+      }
+      tracks.forEach(track => {
         track.enabled = isVideoMuted;
       });
       setIsVideoMuted(!isVideoMuted);
