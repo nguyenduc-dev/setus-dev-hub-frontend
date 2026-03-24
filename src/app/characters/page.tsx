@@ -109,6 +109,7 @@ export default function CharactersPage() {
 
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [filterFaction, setFilterFaction] = useState<Faction | 'All'>('All');
+  const [filterLevel, setFilterLevel] = useState<string | 'All'>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
@@ -139,22 +140,40 @@ export default function CharactersPage() {
         />
       </div>
 
-      {/* Filter Factions */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        {['All', 'Demon', 'Knight', 'Mutant', 'Anomaly'].map((faction) => (
-          <button
-            key={faction}
-            onClick={() => setFilterFaction(faction as any)}
-            className={cn(
-              "px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border",
-              filterFaction === faction 
-                ? "bg-indigo-500 border-indigo-400 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]" 
-                : "bg-zinc-900/50 border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300"
-            )}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        {/* Faction Filters */}
+        <div className="flex flex-wrap gap-2">
+          {['All', 'Demon', 'Knight', 'Mutant', 'Anomaly'].map((faction) => (
+            <button
+              key={faction}
+              onClick={() => setFilterFaction(faction as any)}
+              className={cn(
+                "px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border",
+                filterFaction === faction 
+                  ? "bg-indigo-500 border-indigo-400 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]" 
+                  : "bg-zinc-900/50 border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300"
+              )}
+            >
+              {faction}
+            </button>
+          ))}
+        </div>
+
+        {/* Level Filter Dropdown */}
+        <div className="flex items-center gap-3 bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-2 min-w-[160px] hover:border-zinc-700 transition-colors">
+          <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold whitespace-nowrap">Filter Lv</span>
+          <select 
+            value={filterLevel} 
+            onChange={(e) => setFilterLevel(e.target.value)}
+            className="bg-transparent text-xs font-black text-zinc-100 focus:outline-none cursor-pointer w-full appearance-none text-right"
           >
-            {faction}
-          </button>
-        ))}
+            {['All', '1', '2', '3', '4', '?'].map((lv) => (
+              <option key={lv} value={lv} className="bg-zinc-900 text-white">
+                {lv === 'All' ? 'ALL' : `LV ${lv}`}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <input 
@@ -289,20 +308,28 @@ export default function CharactersPage() {
               <div key={i} className="aspect-[3/4] rounded-2xl bg-zinc-900/50 border border-zinc-800 animate-pulse" />
             ))}
           </>
-        ) : characters?.filter(c => (filterFaction === 'All' || c.type === filterFaction) && c.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
+        ) : characters?.filter(c => 
+            (filterFaction === 'All' || c.type === filterFaction) && 
+            (filterLevel === 'All' || c.level === filterLevel) &&
+            c.name.toLowerCase().includes(searchQuery.toLowerCase())
+          ).length === 0 ? (
           <div className="col-span-full py-20 text-center bg-zinc-900/20 rounded-[2rem] border border-dashed border-zinc-800">
             <ImageIcon className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
             <p className="text-zinc-500 font-medium whitespace-pre-wrap px-4">
               {searchQuery 
                 ? `No roster items matching "${searchQuery}" found`
-                : `No ${filterFaction !== 'All' ? filterFaction.toLowerCase() : ''} characters found in the roster`}
+                : `No matching characters found with selected filters`}
             </p>
-            {filterFaction === 'All' && !searchQuery && (
+            {filterFaction === 'All' && filterLevel === 'All' && !searchQuery && (
               <button onClick={() => setIsAdding(true)} className="text-indigo-400 hover:text-indigo-300 text-sm font-semibold underline underline-offset-4 mt-2">Add your first character</button>
             )}
           </div>
         ) : (
-          characters?.filter(c => (filterFaction === 'All' || c.type === filterFaction) && c.name.toLowerCase().includes(searchQuery.toLowerCase())).map((char: Character) => (
+          characters?.filter(c => 
+            (filterFaction === 'All' || c.type === filterFaction) && 
+            (filterLevel === 'All' || c.level === filterLevel) &&
+            c.name.toLowerCase().includes(searchQuery.toLowerCase())
+          ).map((char: Character) => (
             <div 
               key={char.id} 
               onClick={() => setSelectedCharacter(char)}
