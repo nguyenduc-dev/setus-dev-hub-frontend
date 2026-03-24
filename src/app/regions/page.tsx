@@ -78,7 +78,7 @@ export default function RegionsPage() {
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col h-full">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white mb-1">Game Regions</h1>
@@ -86,7 +86,7 @@ export default function RegionsPage() {
         </div>
       </div>
 
-      <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl overflow-hidden backdrop-blur-md relative min-h-[400px]">
+      <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl backdrop-blur-md relative min-h-[400px]">
         {isLoading && <Loader fullScreen={false} className="absolute inset-0 z-50 bg-zinc-950/40" />}
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left border-collapse">
