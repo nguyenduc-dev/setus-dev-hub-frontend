@@ -52,11 +52,17 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, onCloseMobile }: 
       )}
 
       {/* Logo Section */}
-      <div className="w-full flex items-center py-8 px-6 overflow-hidden">
+      <div className={cn(
+        "w-full flex items-center py-8 px-6 overflow-hidden",
+        isCollapsed && "justify-center px-0"
+      )}>
         <Link 
           href="/" 
           onClick={onCloseMobile}
-          className="flex items-center gap-3 group cursor-pointer hover:opacity-80 transition-opacity min-w-max"
+          className={cn(
+            "flex items-center gap-3 group cursor-pointer hover:opacity-80 transition-opacity min-w-max",
+            isCollapsed && "gap-0"
+          )}
         >
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_15px_rgba(99,102,241,0.5)] flex items-center justify-center shrink-0 transition-transform group-hover:scale-105">
             <Layers className="w-4 h-4 text-white" />
@@ -85,7 +91,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, onCloseMobile }: 
                 isActive 
                   ? "bg-indigo-500/10 text-indigo-400" 
                   : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100",
-                isCollapsed && "justify-center px-0"
+                isCollapsed && "justify-center px-0 gap-0"
               )}
               title={isCollapsed ? item.label : undefined}
             >
@@ -110,10 +116,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, onCloseMobile }: 
       </nav>
       
       {/* Workspace Badge */}
-      <div className="w-full px-3 pb-8 mt-auto overflow-hidden">
+      <div className={cn(
+        "w-full px-3 pb-8 mt-auto overflow-hidden",
+        isCollapsed && "px-2"
+      )}>
         <div className={cn(
           "p-4 rounded-2xl bg-gradient-to-br from-zinc-800/40 to-zinc-900/40 border border-zinc-800/50 flex flex-col items-start transition-all duration-300 ease-in-out",
-          isCollapsed ? "items-center px-2 py-4" : "px-4"
+          isCollapsed ? "items-center p-0 h-10 w-10 justify-center mx-auto" : "px-4"
         )}>
           {isCollapsed ? (
              <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] font-bold text-zinc-500">SH</div>
